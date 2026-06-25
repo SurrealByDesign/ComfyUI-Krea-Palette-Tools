@@ -4,6 +4,8 @@
 
 ![Same reference image, palette extracted four ways — most_populous, vibrant, muted, and dark_vibrant — shown as four labeled swatch strips side by side](assets/palette_modes_example.png)
 
+*Same reference image. Only the ranking mode changed.*
+
 ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
 ![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)
 ![ComfyUI custom nodes](https://img.shields.io/badge/ComfyUI-custom%20nodes-6f42c1.svg)
@@ -13,6 +15,13 @@
 **Problem:** Krea 2 can't take a color palette directly — it wants text or
 an image. **Solution:** these nodes extract a palette from any reference
 image and hand it to Krea exactly the way it wants it.
+
+```
+Reference Image → Palette Extractor → Palette Preview → Krea
+```
+
+(Full diagram, including the optional cloud branch, in
+[Workflow Diagram](#workflow-diagram) below.)
 
 ## Table of Contents
 
@@ -25,6 +34,7 @@ image and hand it to Krea exactly the way it wants it.
 - [Nodes](#nodes)
 - [Examples](#examples)
 - [Showcase](#showcase)
+- [Who This Is For](#who-this-is-for)
 - [Typical Use Cases](#typical-use-cases)
 - [Design Notes](#design-notes)
 - [Testing](#testing)
@@ -49,6 +59,14 @@ for your prompt (free, fully local, no setup) or a swatch image for Krea
 2's cloud-hosted `image_style_references` feature (optional, metered). You
 pick the reference and the ranking mode; the nodes handle the color math
 and the naming.
+
+> **A quick note on "Krea 2."** It runs two distinct ways, and this
+> package touches both: as an **open-weight checkpoint** you load and run
+> locally with standard ComfyUI model nodes (free, your own GPU), or via
+> **Krea's hosted cloud API**, reached in ComfyUI through Comfy **Partner
+> Nodes** like `Krea 2 Image` and `Krea 2 Style Reference` (metered).
+> Nothing in this package depends on which one you use — see
+> [FAQ](#faq) for specifics.
 
 ## Features
 
@@ -235,6 +253,8 @@ graph. Here's that exact workflow loaded in ComfyUI:
 
 ![The showcase_04 workflow loaded in ComfyUI: LoadImage feeding a real photo into Krea Palette Extractor (mode=vibrant), producing a swatch-strip preview, then into Krea Palette To Prompt Text, which outputs "color palette of warm gray and charcoal" in a ShowText node](assets/comfyui_graph_screenshot.png)
 
+*Real photo in, ready-to-paste prompt clause out — three nodes, zero cost.*
+
 If you want the optional cloud path instead,
 [`workflows/palette_reference_workflow.json`](workflows/palette_reference_workflow.json)
 shows the minimal extraction step, and `palette_preview` wires into
@@ -276,6 +296,8 @@ The whole idea in one image — no reading required:
 
 ![Reference image, the palette extracted from it, and the generated result side by side: a reference photo with dark, sage-green, tan, and red accent areas; the matching 7-color extracted swatch; and a generated living room recolored to match](assets/reference_to_result.png)
 
+*One reference photo, its extracted 7-color palette, and the generation it drove.*
+
 Broken down step by step:
 
 **Reference → Palette → Result**
@@ -293,6 +315,22 @@ Broken down step by step:
    muted) — entirely local, no API calls:
 
    ![Krea 2 Turbo colorway study: same seed and scene prompt, only the color-palette clause changed — vibrant palette (vivid red, coral, sage green) vs. muted palette (sage green, tan, stone gray)](assets/krea_colorway_study.png)
+
+*Same prompt. Same seed. Only the palette ranking changed.*
+
+## Who This Is For
+
+**Designed for:**
+- ✓ Brand designers matching an established color identity
+- ✓ Product visualization and colorway exploration
+- ✓ Concept artists pulling a palette out of a mood board
+- ✓ Anyone who wants visual style consistency across generations
+
+**Not intended for:**
+- ✗ Prompt engineering or prompt generation in general
+- ✗ Image editing or compositing
+- ✗ General-purpose palette design software (it extracts and formats —
+  it doesn't let you paint or pick colors from scratch)
 
 ## Typical Use Cases
 
@@ -376,15 +414,27 @@ your own Krea integration already uses.
 ## Related Projects
 
 This package is one half of a two-repo Surreal By Design palette-tooling
-set — same color-math core, two different prompting philosophies:
+ecosystem — same color-math core, two different prompting philosophies:
+
+```
+Surreal By Design — Palette Tools
+│
+├── Ideogram Palette & Prompt Tools     (JSON-first)
+│       Reference Image → Palette → Structured style_description JSON
+│                                  → Prompt assembly
+│
+└── Krea Palette Tools (this repo)      (image-and-text-first)
+        Reference Image → Palette → Prompt clause (free, local)
+                                  → Style-reference image (optional, cloud)
+```
 
 - **[ComfyUI-Ideogram-Palette-and-Prompt-Tools](https://github.com/SurrealByDesign/ComfyUI-Ideogram-Palette-and-Prompt-Tools)**
-  — JSON-first. Extracts palettes and assembles them into Ideogram 4's
-  structured `style_description` prompt schema.
-- **ComfyUI Krea Palette Tools** (this repo) — image-and-text-first.
-  Extracts palettes and renders them as either a natural-language prompt
-  clause (free, local, default) or a swatch image for Krea 2's
-  `image_style_references` style-reference workflow (optional, cloud).
+  — extracts palettes and assembles them into Ideogram 4's structured
+  `style_description` prompt schema.
+- **ComfyUI Krea Palette Tools** (this repo) — extracts palettes and
+  renders them as either a natural-language prompt clause (free, local,
+  default) or a swatch image for Krea 2's `image_style_references`
+  style-reference workflow (optional, cloud).
 
 The k-means/Delta-E/LAB extraction core here was forked from the Ideogram
 repo's `utils/` and is currently maintained independently in each.
