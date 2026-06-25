@@ -1,0 +1,108 @@
+{
+  "last_node_id": 6,
+  "last_link_id": 4,
+  "nodes": [
+    {
+      "id": 1,
+      "type": "LoadImage",
+      "pos": [40, 80],
+      "size": [240, 320],
+      "flags": {},
+      "order": 0,
+      "mode": 0,
+      "outputs": [
+        { "name": "IMAGE", "type": "IMAGE", "links": [1], "slot_index": 0 },
+        { "name": "MASK", "type": "MASK", "links": null }
+      ],
+      "widgets_values": ["reference.png", "image"]
+    },
+    {
+      "id": 2,
+      "type": "KreaPaletteExtractor",
+      "pos": [340, 80],
+      "size": [260, 160],
+      "flags": {},
+      "order": 1,
+      "mode": 0,
+      "inputs": [
+        { "name": "image", "type": "IMAGE", "link": 1 }
+      ],
+      "outputs": [
+        { "name": "palette_json", "type": "STRING", "links": [2], "slot_index": 0 },
+        { "name": "palette_preview", "type": "IMAGE", "links": [3], "slot_index": 1 },
+        { "name": "color_count", "type": "INT", "links": null, "slot_index": 2 }
+      ],
+      "widgets_values": [8, 10.0, "vibrant"]
+    },
+    {
+      "id": 3,
+      "type": "PreviewImage",
+      "pos": [660, 80],
+      "size": [260, 260],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        { "name": "images", "type": "IMAGE", "link": 3 }
+      ],
+      "outputs": []
+    },
+    {
+      "id": 4,
+      "type": "KreaPaletteToPromptText",
+      "pos": [660, 380],
+      "size": [300, 130],
+      "flags": {},
+      "order": 3,
+      "mode": 0,
+      "inputs": [
+        { "name": "palette_json", "type": "STRING", "link": 2 }
+      ],
+      "outputs": [
+        { "name": "text", "type": "STRING", "links": [4], "slot_index": 0 }
+      ],
+      "widgets_values": [4, "color palette of {colors}"]
+    },
+    {
+      "id": 5,
+      "type": "ShowText|pysssss",
+      "pos": [1000, 380],
+      "size": [300, 160],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        { "name": "text", "type": "STRING", "link": 4 }
+      ],
+      "outputs": [
+        { "name": "STRING", "type": "STRING", "links": null }
+      ]
+    },
+    {
+      "id": 6,
+      "type": "Note",
+      "pos": [40, -220],
+      "size": [1000, 180],
+      "flags": {},
+      "order": 5,
+      "mode": 0,
+      "properties": { "text": "" },
+      "widgets_values": ["FULLY FREE, LOCAL PIPELINE -- no Krea API, no Comfy Partner Nodes, zero cost.\n\nLoad Image -> Krea Palette Extractor (mode=vibrant) -> Krea Palette To Prompt Text.\n\nThe text output (e.g. \"color palette of vivid red, sage green, and warm tan\") is a ready-to-paste prompt clause -- append it to whatever prompt feeds your own local Krea 2 (or any other local model) checkpoint/sampler nodes. Those nodes aren't included here since they depend on which checkpoint you have installed; this workflow stops at the text clause and swatch preview. ShowText is optional (ComfyUI-Custom-Scripts) and just displays the generated clause for copy-pasting."],
+      "color": "#234",
+      "bgcolor": "#346",
+      "title": "README — credit-free path"
+    }
+  ],
+  "links": [
+    [1, 1, 0, 2, 0, "IMAGE"],
+    [2, 2, 0, 4, 0, "STRING"],
+    [3, 2, 1, 3, 0, "IMAGE"],
+    [4, 4, 0, 5, 0, "STRING"]
+  ],
+  "groups": [],
+  "config": {},
+  "extra": {
+    "note": "Fully free, local pipeline: LoadImage -> KreaPaletteExtractor -> KreaPaletteToPromptText. No Krea API or Comfy Partner Nodes anywhere in this graph. The text output is a ready-to-paste color clause for your own local model's prompt."
+  },
+  "version": 0.4
+}
