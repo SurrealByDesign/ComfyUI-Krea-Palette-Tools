@@ -1,0 +1,15 @@
+[project]
+name = "comfyui-krea-palette-tools"
+description = "Extract color palettes from reference images and package them as Krea 2 image_style_references."
+version = "0.1.0"
+license = { file = "LICENSE" }
+authors = [
+  { name = "SurrealByDesign" }
+]
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["scikit-learn"]
+
+[tool.comfy]
+PublisherId = "surrealbydesign"
+DisplayName = "ComfyUI Krea Palette Tools"
