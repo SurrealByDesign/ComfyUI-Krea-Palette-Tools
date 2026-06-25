@@ -10,14 +10,18 @@
 ![Extra dependency: scikit-learn](https://img.shields.io/badge/extra%20dep-scikit--learn-orange.svg)
 ![Free & local by default](https://img.shields.io/badge/free%20%26%20local-by%20default-success.svg)
 
+**Problem:** Krea 2 can't take a color palette directly — it wants text or
+an image. **Solution:** these nodes extract a palette from any reference
+image and hand it to Krea exactly the way it wants it.
+
 ## Table of Contents
 
 - [The Problem](#the-problem)
 - [The Solution](#the-solution)
 - [Features](#features)
+- [Workflow Diagram](#workflow-diagram)
 - [Quick Start](#quick-start)
 - [Installation](#installation)
-- [Workflow Diagram](#workflow-diagram)
 - [Nodes](#nodes)
 - [Examples](#examples)
 - [Showcase](#showcase)
@@ -63,6 +67,47 @@ and the naming.
 - **Composable nodes.** Wires into any ComfyUI graph; no monolithic
   do-everything node.
 
+## Workflow Diagram
+
+The default, always-free path:
+
+```
+Reference Image
+       │
+       ▼
+Palette Extraction        KreaPaletteExtractor
+       │                  (k-means + Delta-E dedup, mode-ranked)
+       ▼
+Palette Swatch             palette_preview (labeled IMAGE)
+       │
+       ▼
+Color Clause               KreaPaletteToPromptText
+       │                  (nearest-name lookup, no API calls)
+       ▼
+Your Local Prompt          paste the clause into your own
+                           local Krea 2 / any local model
+```
+
+Every step above runs locally with zero cost. There's an optional branch
+if you want Krea's *cloud* style-reference feature instead of a text
+clause:
+
+```
+Palette Swatch
+       │
+       ▼
+KreaPaletteStyleReference   (packages swatch + strength)
+       │
+       ▼
+Krea 2 Style Reference      Comfy Partner Node — calls Krea's
+   → Krea 2 Image           hosted API, metered per generation
+       │
+       ▼
+Generated Image
+```
+
+See [FAQ](#faq) for when you'd want the optional cloud branch.
+
 ## Quick Start
 
 1. Install the package (see [Installation](#installation)).
@@ -105,47 +150,6 @@ nodes appear in the node menu under **`Krea/Palette`**.
 `requires-python = ">=3.10"` in [`pyproject.toml`](pyproject.toml) is the
 floor, not a guarantee for every ComfyUI version — open an issue if
 something doesn't load on yours.
-
-## Workflow Diagram
-
-The default, always-free path:
-
-```
-Reference Image
-       │
-       ▼
-Palette Extraction        KreaPaletteExtractor
-       │                  (k-means + Delta-E dedup, mode-ranked)
-       ▼
-Palette Swatch             palette_preview (labeled IMAGE)
-       │
-       ▼
-Color Clause               KreaPaletteToPromptText
-       │                  (nearest-name lookup, no API calls)
-       ▼
-Your Local Prompt          paste the clause into your own
-                           local Krea 2 / any local model
-```
-
-Every step above runs locally with zero cost. There's an optional branch
-if you want Krea's *cloud* style-reference feature instead of a text
-clause:
-
-```
-Palette Swatch
-       │
-       ▼
-KreaPaletteStyleReference   (packages swatch + strength)
-       │
-       ▼
-Krea 2 Style Reference      Comfy Partner Node — calls Krea's
-   → Krea 2 Image           hosted API, metered per generation
-       │
-       ▼
-Generated Image
-```
-
-See [FAQ](#faq) for when you'd want the optional cloud branch.
 
 ## Nodes
 
@@ -227,7 +231,9 @@ LoadImage -> KreaPaletteExtractor -> KreaPaletteToPromptText
 
 The `text` output is a ready-to-paste color clause for your own local
 model's prompt — no Krea API, no Comfy Partner Nodes anywhere in this
-graph.
+graph. Here's that exact workflow loaded in ComfyUI:
+
+![The showcase_04 workflow loaded in ComfyUI: LoadImage feeding a real photo into Krea Palette Extractor (mode=vibrant), producing a swatch-strip preview, then into Krea Palette To Prompt Text, which outputs "color palette of warm gray and charcoal" in a ShowText node](assets/comfyui_graph_screenshot.png)
 
 If you want the optional cloud path instead,
 [`workflows/palette_reference_workflow.json`](workflows/palette_reference_workflow.json)
@@ -266,7 +272,11 @@ node.
 
 ## Showcase
 
-The shortest way to see the whole idea:
+The whole idea in one image — no reading required:
+
+![Reference image, the palette extracted from it, and the generated result side by side: a reference photo with dark, sage-green, tan, and red accent areas; the matching 7-color extracted swatch; and a generated living room recolored to match](assets/reference_to_result.png)
+
+Broken down step by step:
 
 **Reference → Palette → Result**
 
